@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Prospecto {
+  id                    Int          @id @default(autoincrement())
+  nombre                String
+  telefono              String       @unique
+  empresa               String       @default("")
+  rubro                 String       @default("")
+  notas                 String       @default("")
+  estado                String       @default("pendiente")
+  etapaActual           Int          @default(0)
+  fechaCreacion         DateTime     @default(now())
+  fechaUltimoMensaje    DateTime?
+  fechaRespuesta        DateTime?
+  proximoMensaje        DateTime?
+  totalMensajesEnviados Int          @default(0)
+  mensajesLog           MensajeLog[]
+
+  @@map("prospectos")
+}
+
+model MensajeLog {
+  id          Int       @id @default(autoincrement())
+  prospectoId Int
+  prospecto   Prospecto @relation(fields: [prospectoId], references: [id])
+  tipo        String
+  plantilla   String    @default("")
+  contenido   String    @default("")
+  fecha       DateTime  @default(now())
+
+  @@map("mensajes_log")
+}
+
+model Configuracion {
+  id    Int    @id @default(1)
+  datos String
+
+  @@map("configuracion")
+}

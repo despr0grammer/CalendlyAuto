@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Prisma
+data/bot.db
+data/bot.db-wal
+data/session/
+
+# Env
+.env.local
+.env.*.local
+
+# Logs
+*.log
