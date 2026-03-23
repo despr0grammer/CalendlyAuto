@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Configuración — WhatsApp Sales{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">⚙️ Configuración</h1>
+</div>
+
+<div class="card" style="max-width:800px;">
+  <div class="card-body">
+    <form method="post">
+
+      <!-- Empresa -->
+      <div class="form-section">
+        <div class="form-section-title">🏢 Tu empresa</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nombre">Nombre de tu empresa *</label>
+            <input type="text" id="nombre" name="nombre" value="{{ config.empresa.nombre }}" required>
+          </div>
+          <div class="form-group">
+            <label for="producto">Nombre del software / producto *</label>
+            <input type="text" id="producto" name="producto" value="{{ config.empresa.producto }}" required>
+          </div>
+          <div class="form-group">
+            <label for="vendedor">Tu nombre (aparece en los mensajes)</label>
+            <input type="text" id="vendedor" name="vendedor" value="{{ config.empresa.nombreVendedor }}">
+          </div>
+          <div class="form-group">
+            <label for="web">Sitio web</label>
+            <input type="url" id="web" name="web" value="{{ config.empresa.sitioWeb }}" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label for="telefono_empresa">Teléfono de contacto</label>
+            <input type="text" id="telefono_empresa" name="telefono_empresa" value="{{ config.empresa.telefono }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficios -->
+      <div class="form-section">
+        <div class="form-section-title">✅ Beneficios del producto</div>
+        <p class="form-hint" style="margin-bottom:1rem;">Se muestran en los mensajes de venta. Sé específico y con números si podés.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ben1">Beneficio 1</label>
+            <input type="text" id="ben1" name="ben1" value="{{ bens[0] }}" placeholder="Ej: Reducción del 60% en tiempo administrativo">
+          </div>
+          <div class="form-group">
+            <label for="ben2">Beneficio 2</label>
+            <input type="text" id="ben2" name="ben2" value="{{ bens[1] }}" placeholder="Ej: Control total de ventas e inventario">
+          </div>
+          <div class="form-group">
+            <label for="ben3">Beneficio 3</label>
+            <input type="text" id="ben3" name="ben3" value="{{ bens[2] }}" placeholder="Ej: Reportes en tiempo real">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiempos -->
+      <div class="form-section">
+        <div class="form-section-title">⏱️ Tiempos de seguimiento</div>
+        <p class="form-hint" style="margin-bottom:1rem;">Cuántas horas esperar entre cada mensaje. Solo se envían en horario laboral.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="horas1">Horas entre mensaje inicial y seguimiento 1</label>
+            <input type="number" id="horas1" name="horas1" value="{{ config.secuencia.horasAntesSeguimiento1 }}" min="1" max="720">
+            <span class="form-hint">Recomendado: 48 horas (2 días)</span>
+          </div>
+          <div class="form-group">
+            <label for="horas2">Horas entre seguimiento 1 y 2</label>
+            <input type="number" id="horas2" name="horas2" value="{{ config.secuencia.horasAntesSeguimiento2 }}" min="1" max="720">
+            <span class="form-hint">Recomendado: 72 horas (3 días)</span>
+          </div>
+          <div class="form-group">
+            <label for="horas3">Horas entre seguimiento 2 y 3</label>
+            <input type="number" id="horas3" name="horas3" value="{{ config.secuencia.horasAntesSeguimiento3 }}" min="1" max="720">
+            <span class="form-hint">Recomendado: 120 horas (5 días)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Horario -->
+      <div class="form-section">
+        <div class="form-section-title">🕐 Horario de envío</div>
+        <p class="form-hint" style="margin-bottom:1rem;">El bot solo envía mensajes dentro de este horario (lunes a viernes).</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="hora_inicio">Hora de inicio</label>
+            <input type="number" id="hora_inicio" name="hora_inicio" value="{{ config.horarioEnvio.horaInicio }}" min="6" max="12">
+            <span class="form-hint">Ej: 9 = 9:00 AM</span>
+          </div>
+          <div class="form-group">
+            <label for="hora_fin">Hora de fin</label>
+            <input type="number" id="hora_fin" name="hora_fin" value="{{ config.horarioEnvio.horaFin }}" min="12" max="22">
+            <span class="form-hint">Ej: 19 = 7:00 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Guardar configuración</button>
+        <a href="{{ url_for('preview_mensajes') }}" class="btn btn-secondary">👁️ Ver cómo quedan los mensajes</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — WhatsApp Sales{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">📊 Dashboard</h1>
+  <div id="bot-status-badge" class="bot-status {{ 'on' if bot_corriendo else 'off' }}">
+    <span class="status-dot"></span>
+    <span id="bot-status-text">{{ 'Bot activo' if bot_corriendo else 'Bot detenido' }}</span>
+  </div>
+</div>
+
+<!-- Alerta de respondieron -->
+{% if respondieron %}
+<div class="alert-respondio">
+  <h3>🔥 ¡{{ respondieron|length }} prospecto(s) respondieron! Es tu turno de atenderlos.</h3>
+  {% for p in respondieron %}
+  <div class="respondio-item">
+    <div>
+      <div class="respondio-nombre">{{ p.nombre }}</div>
+      <div class="respondio-info">{{ p.telefono }} · {{ p.empresa or 'Sin empresa' }} · {{ p.rubro or '' }}</div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('detalle_prospecto', id_=p.id) }}" class="btn btn-info btn-sm">Ver historial</a>
+      <form method="post" action="{{ url_for('cambiar_estado', id_=p.id) }}" style="display:inline">
+        <input type="hidden" name="estado" value="convertido">
+        <button class="btn btn-primary btn-sm">✅ Marcar convertido</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Estadísticas -->
+<div class="stats-grid">
+  <div class="stat-card total">
+    <div class="stat-number" id="stat-total">{{ stats.total }}</div>
+    <div class="stat-label">Total prospectos</div>
+  </div>
+  <div class="stat-card pendiente">
+    <div class="stat-number" id="stat-pendientes">{{ stats.pendientes }}</div>
+    <div class="stat-label">Pendientes</div>
+  </div>
+  <div class="stat-card secuencia">
+    <div class="stat-number" id="stat-secuencia">{{ stats.en_secuencia }}</div>
+    <div class="stat-label">En secuencia</div>
+  </div>
+  <div class="stat-card respondio">
+    <div class="stat-number" id="stat-respondio">{{ stats.respondieron }}</div>
+    <div class="stat-label">Respondieron 🔥</div>
+  </div>
+  <div class="stat-card convertido">
+    <div class="stat-number" id="stat-convertido">{{ stats.convertidos }}</div>
+    <div class="stat-label">Convertidos ⭐</div>
+  </div>
+  <div class="stat-card descartado">
+    <div class="stat-number" id="stat-descartado">{{ stats.descartados }}</div>
+    <div class="stat-label">Descartados</div>
+  </div>
+</div>
+
+<!-- Dashboard grid -->
+<div class="dashboard-grid">
+
+  <!-- Tarjeta de conexión dinámica (manejada 100% por JS) -->
+  <div id="connection-card" class="card">
+    <!-- El contenido se inyecta por JS según el estado del bot -->
+    <div id="conn-loading" style="padding:2rem;text-align:center;color:var(--text-muted);">
+      <div class="qr-spinner"></div>
+      <p style="margin-top:.75rem;font-size:.875rem;">Verificando estado del bot...</p>
+    </div>
+  </div>
+
+  <!-- Acciones rápidas -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⚡ Acciones rápidas</span>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:.75rem;">
+      <a href="{{ url_for('nuevo_prospecto') }}" class="btn btn-primary">➕ Agregar prospecto</a>
+      <a href="{{ url_for('importar') }}" class="btn btn-secondary">📥 Importar CSV</a>
+      <button id="btn-forzar" onclick="forzarEnvio()" class="btn btn-secondary">⚡ Enviar ahora</button>
+      <button id="btn-verificar" onclick="verificarRespuestas()" class="btn btn-secondary">🔍 Verificar respuestas</button>
+      <a href="{{ url_for('prospectos', estado='respondio') }}" class="btn btn-secondary">🔥 Ver respondieron</a>
+      <a href="{{ url_for('preview_mensajes') }}" class="btn btn-secondary">✉️ Ver mensajes</a>
+      <a href="{{ url_for('configuracion') }}" class="btn btn-secondary">⚙️ Configuración</a>
+    </div>
+  </div>
+
+  <!-- Secuencia de mensajes -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Secuencia automática</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:.75rem;font-size:.875rem;">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="background:#d1fae5;color:#065f46;padding:.25rem .6rem;border-radius:6px;font-weight:700;font-size:.8rem;white-space:nowrap;">~5 min</span>
+          <span>📨 <strong>Mensaje inicial</strong> — Presentación de tu empresa</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="background:#dbeafe;color:#1e40af;padding:.25rem .6rem;border-radius:6px;font-weight:700;font-size:.8rem;white-space:nowrap;">+48 hs</span>
+          <span>🔁 <strong>Seguimiento 1</strong> — ¿Tuviste chance de leerlo?</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="background:#dbeafe;color:#1e40af;padding:.25rem .6rem;border-radius:6px;font-weight:700;font-size:.8rem;white-space:nowrap;">+72 hs</span>
+          <span>🔁 <strong>Seguimiento 2</strong> — Insistencia con beneficios</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="background:#dbeafe;color:#1e40af;padding:.25rem .6rem;border-radius:6px;font-weight:700;font-size:.8rem;white-space:nowrap;">+120 hs</span>
+          <span>🔁 <strong>Seguimiento 3</strong> — Despedida y cierre</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding-top:.25rem;border-top:1px solid var(--border);">
+          <span style="background:#d1fae5;color:#065f46;padding:.25rem .6rem;border-radius:6px;font-weight:700;font-size:.8rem;">Responde</span>
+          <span>🔥 <strong>¡Te notifica!</strong> Tomás vos el control</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log del bot -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📟 Log del bot</span>
+      <button onclick="limpiarLog()" class="btn btn-secondary btn-sm">Limpiar</button>
+    </div>
+    <div class="card-body" style="padding:.75rem;">
+      <div class="log-box" id="log-box">
+        {% if log %}
+          {% for linea in log %}
+            <div>{{ linea }}</div>
+          {% endfor %}
+        {% else %}
+          <div class="log-empty">Sin actividad aún. Iniciá el bot para ver los logs.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /dashboard-grid -->
+
+<script>
+// ── Estado actual del bot ─────────────────────────────────────
+let estadoActual = { corriendo: false, conectado: false, qr: false };
+
+// ── Helpers ───────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Renders de cada estado de la tarjeta ──────────────────────
+
+function renderBotDetenido() {
+  return `
+    <div class="card-header">
+      <span class="card-title">🤖 Iniciar el bot</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1rem;">
+        El bot envía mensajes automáticamente. Para iniciarlo:
+      </p>
+      <ol style="font-size:.875rem;padding-left:1.25rem;line-height:2.2;">
+        <li>Abrí una terminal en la carpeta <code>whatsapp-assistant</code></li>
+        <li>Ejecutá: <code style="background:#f3f4f6;padding:.15rem .5rem;border-radius:4px;">python bot.py</code></li>
+        <li>Volvé aquí — el QR aparecerá automáticamente</li>
+        <li>Escanealo con tu celular y listo</li>
+      </ol>
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem;margin-top:1rem;font-size:.82rem;color:#92400e;">
+        💡 Esta página detecta el QR sola. No hace falta recargarla.
+      </div>
+    </div>`;
+}
+
+function renderEsperandoQR() {
+  return `
+    <div class="card-header" style="background:#fff7ed;">
+      <span class="card-title">⏳ Iniciando bot...</span>
+      <span style="font-size:.8rem;color:var(--warning);font-weight:600;">● Generando QR</span>
+    </div>
+    <div class="card-body" style="text-align:center;padding:2rem;">
+      <div class="qr-spinner" style="margin:0 auto 1rem;"></div>
+      <p style="font-size:.875rem;color:var(--text-muted);">
+        El bot está iniciando WhatsApp Web.<br>El QR aparecerá en segundos...
+      </p>
+    </div>`;
+}
+
+function renderQR() {
+  return `
+    <div class="card-header" style="background:#f0fdf4;border-color:var(--wa-green);">
+      <span class="card-title">📱 Escaneá el QR</span>
+      <span class="qr-pulse-dot">● Esperando escaneo</span>
+    </div>
+    <div class="card-body" style="text-align:center;">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1rem;">
+        Abrí WhatsApp → <strong>⋮ → Dispositivos vinculados → Vincular dispositivo</strong>
+      </p>
+      <div class="qr-frame">
+        <img id="qr-img" src="/qr.png?t=${Date.now()}" alt="QR WhatsApp"
+             onload="this.classList.add('loaded')"
+             onerror="this.src='/qr.png?t=${Date.now()+1}'">
+      </div>
+      <p style="font-size:.78rem;color:var(--text-muted);margin-top:.75rem;">
+        🔄 Se actualiza automáticamente · Código válido por ~60 seg
+      </p>
+    </div>`;
+}
+
+function renderConectado() {
+  return `
+    <div class="card-header" style="background:#f0fdf4;">
+      <span class="card-title">🧪 Probar con mi número</span>
+      <span style="font-size:.8rem;color:var(--success);font-weight:600;">● Bot conectado</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1rem;">
+        Enviarte el mensaje inicial para ver cómo llega.
+      </p>
+      <form method="post" action="/probar">
+        <div class="form-group" style="margin-bottom:.75rem;">
+          <label>Tu nombre</label>
+          <input type="text" name="nombre" value="Yo (prueba)" placeholder="Mi nombre">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Tu número de WhatsApp</label>
+          <input type="text" name="telefono" placeholder="+5491123456789" required>
+          <span class="form-hint">Con código de país (+54 Argentina, +1 USA, etc.)</span>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">
+          📨 Enviarme el mensaje inicial
+        </button>
+      </form>
+    </div>`;
+}
+
+// ── Actualizar tarjeta de conexión ────────────────────────────
+
+function actualizarTarjetaConexion(bot) {
+  const card = document.getElementById('connection-card');
+
+  // Calcular qué estado mostrar
+  let nuevoEstado;
+  if      (bot.conectado)              nuevoEstado = 'conectado';
+  else if (bot.qr)                     nuevoEstado = 'qr';
+  else if (bot.corriendo)              nuevoEstado = 'esperando';
+  else                                 nuevoEstado = 'detenido';
+
+  // Solo re-renderizar si cambió el estado (evita parpadeo del QR)
+  if (card.dataset.estado === nuevoEstado) {
+    // Mismo estado: solo refrescar la imagen QR si corresponde
+    if (nuevoEstado === 'qr') {
+      const img = document.getElementById('qr-img');
+      if (img) {
+        const nueva = new Image();
+        nueva.onload = () => {
+          img.classList.remove('loaded');
+          img.src = nueva.src;
+          setTimeout(() => img.classList.add('loaded'), 50);
+        };
+        nueva.src = '/qr.png?t=' + Date.now();
+      }
+    }
+    return;
+  }
+
+  // Cambió el estado → actualizar contenido y borde
+  card.dataset.estado = nuevoEstado;
+  card.style.border = (nuevoEstado === 'qr' || nuevoEstado === 'conectado')
+    ? '2px solid var(--wa-green)' : '';
+
+  const renders = {
+    detenido:  renderBotDetenido,
+    esperando: renderEsperandoQR,
+    qr:        renderQR,
+    conectado: renderConectado,
+  };
+
+  card.innerHTML = renders[nuevoEstado]();
+
+  // Animación de entrada
+  card.style.opacity = '0';
+  card.style.transition = 'opacity .3s';
+  requestAnimationFrame(() => { card.style.opacity = '1'; });
+}
+
+// ── Loop principal ────────────────────────────────────────────
+
+async function actualizarDashboard() {
+  try {
+    const [statsR, botR, alertasR] = await Promise.all([
+      fetch('/api/stats').then(r => r.json()),
+      fetch('/api/bot/estado').then(r => r.json()),
+      fetch('/api/alertas').then(r => r.json()),
+    ]);
+
+    estadoActual = botR;
+
+    // Stats
+    document.getElementById('stat-total').textContent      = statsR.total;
+    document.getElementById('stat-pendientes').textContent = statsR.pendientes;
+    document.getElementById('stat-secuencia').textContent  = statsR.en_secuencia;
+    document.getElementById('stat-respondio').textContent  = statsR.respondieron;
+    document.getElementById('stat-convertido').textContent = statsR.convertidos;
+    document.getElementById('stat-descartado').textContent = statsR.descartados;
+
+    // Badge
+    const badge = document.getElementById('bot-status-badge');
+    const txt   = document.getElementById('bot-status-text');
+    if (botR.conectado) {
+      badge.className = 'bot-status on';
+      txt.textContent = 'Bot conectado';
+    } else if (botR.corriendo) {
+      badge.className = 'bot-status on';
+      txt.textContent = botR.qr ? 'Escaneá el QR...' : 'Iniciando...';
+    } else {
+      badge.className = 'bot-status off';
+      txt.textContent = 'Bot detenido';
+    }
+
+    // Tarjeta de conexión dinámica
+    actualizarTarjetaConexion(botR);
+
+    // Log
+    if (botR.log && botR.log.length) {
+      const box = document.getElementById('log-box');
+      const nuevo = botR.log.map(l => `<div>${esc(l)}</div>`).join('');
+      if (box.innerHTML !== nuevo) box.innerHTML = nuevo;
+    }
+
+    // Alertas respondieron
+    if (alertasR.length > 0) {
+      document.title = `🔥 (${alertasR.length}) Dashboard — WhatsApp Sales`;
+    } else {
+      document.title = 'Dashboard — WhatsApp Sales';
+    }
+
+  } catch(e) {}
+}
+
+function limpiarLog() {
+  document.getElementById('log-box').innerHTML = '<div class="log-empty">Log limpiado.</div>';
+}
+
+async function verificarRespuestas() {
+  const btn = document.getElementById('btn-verificar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Verificando...';
+  try {
+    await fetch('/api/verificar-respuestas', { method: 'POST' });
+    btn.textContent = '✅ Verificado';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '🔍 Verificar respuestas'; }, 4000);
+    await actualizarDashboard();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '🔍 Verificar respuestas';
+  }
+}
+
+async function forzarEnvio() {
+  const btn = document.getElementById('btn-forzar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  try {
+    await fetch('/api/forzar-envio', { method: 'POST' });
+    btn.textContent = '✅ ¡Enviado!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '⚡ Enviar ahora'; }, 4000);
+    await actualizarDashboard();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '⚡ Enviar ahora';
+  }
+}
+
+// Arrancar enseguida y luego cada 3 seg si hay QR, 8 seg si no
+actualizarDashboard();
+
+function loop() {
+  const intervalo = estadoActual.qr ? 3000 : estadoActual.corriendo ? 5000 : 8000;
+  setTimeout(async () => { await actualizarDashboard(); loop(); }, intervalo);
+}
+loop();
+</script>
+{% endblock %}

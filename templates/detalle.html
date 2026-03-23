@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ p.nombre }} — WhatsApp Sales{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ p.nombre }}</h1>
+  <a href="{{ url_for('prospectos') }}" class="btn btn-secondary">← Volver</a>
+</div>
+
+{% set badge_class, badge_label = ESTADO_BADGE.get(p.estado, ('badge-secondary', p.estado)) %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+  <!-- Info del prospecto -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Información</span>
+      <span class="badge {{ badge_class }}">{{ badge_label }}</span>
+    </div>
+    <div class="card-body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Teléfono</label>
+          <div class="value" style="font-family:monospace;">{{ p.telefono }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Empresa</label>
+          <div class="value">{{ p.empresa or '—' }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Rubro</label>
+          <div class="value">{{ p.rubro or '—' }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Etapa actual</label>
+          <div class="value">{{ p.etapa_actual }} / 4 ({{ p.total_mensajes_enviados }} mensajes enviados)</div>
+        </div>
+        <div class="detail-item">
+          <label>Agregado</label>
+          <div class="value">{{ p.fecha_creacion_fmt }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Próximo envío</label>
+          <div class="value">{{ p.proximo_mensaje_fmt }}</div>
+        </div>
+        {% if p.fecha_respuesta %}
+        <div class="detail-item" style="grid-column:span 2;">
+          <label>Respondió el</label>
+          <div class="value" style="color:var(--success);">🔥 {{ p.fecha_respuesta_fmt }}</div>
+        </div>
+        {% endif %}
+        {% if p.notas %}
+        <div class="detail-item" style="grid-column:span 2;">
+          <label>Notas</label>
+          <div class="value" style="font-weight:400;">{{ p.notas }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambiar estado -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🔄 Cambiar estado</span>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:.6rem;">
+      {% for estado, (cls, label) in ESTADO_BADGE.items() %}
+      <form method="post" action="{{ url_for('cambiar_estado', id_=p.id) }}">
+        <input type="hidden" name="estado" value="{{ estado }}">
+        <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+                {% if p.estado == estado %}disabled style="width:100%;opacity:.5;cursor:default;"{% endif %}>
+          <span class="badge {{ cls }}" style="margin-right:.5rem;">{{ label }}</span>
+          {% if p.estado == estado %}← actual{% endif %}
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Historial de mensajes -->
+<div class="card" style="margin-top:1.25rem;">
+  <div class="card-header">
+    <span class="card-title">📨 Historial de mensajes</span>
+    <span style="font-size:.8rem;color:var(--text-muted);">{{ historial|length }} mensaje(s)</span>
+  </div>
+  <div class="card-body">
+    {% if historial %}
+    <ul class="timeline">
+      {% for h in historial %}
+      <li class="timeline-item {{ h.tipo }}">
+        <div class="timeline-fecha">{{ h.fecha_fmt }}</div>
+        <div class="timeline-tipo">
+          {% if h.tipo == 'enviado' %}
+            📤 Enviado {% if h.plantilla %}({{ h.plantilla }}){% endif %}
+          {% else %}
+            📩 Recibido
+          {% endif %}
+        </div>
+        <div class="timeline-texto">{{ h.contenido }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color:var(--text-muted);font-size:.875rem;">Aún no hay mensajes registrados.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

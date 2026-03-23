@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Prospectos — WhatsApp Sales{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">👥 Prospectos</h1>
+  <a href="{{ url_for('nuevo_prospecto') }}" class="btn btn-primary">➕ Agregar</a>
+</div>
+
+<!-- Filtros -->
+<div class="filter-bar">
+  <a href="{{ url_for('prospectos') }}" class="filter-btn {% if not estado_filtro %}active{% endif %}">
+    Todos ({{ stats.total }})
+  </a>
+  <a href="{{ url_for('prospectos', estado='pendiente') }}" class="filter-btn {% if estado_filtro == 'pendiente' %}active{% endif %}">
+    Pendientes ({{ stats.pendientes }})
+  </a>
+  <a href="{{ url_for('prospectos', estado='en_secuencia') }}" class="filter-btn {% if estado_filtro == 'en_secuencia' %}active{% endif %}">
+    En secuencia ({{ stats.en_secuencia }})
+  </a>
+  <a href="{{ url_for('prospectos', estado='respondio') }}" class="filter-btn {% if estado_filtro == 'respondio' %}active{% endif %}">
+    🔥 Respondieron ({{ stats.respondieron }})
+  </a>
+  <a href="{{ url_for('prospectos', estado='convertido') }}" class="filter-btn {% if estado_filtro == 'convertido' %}active{% endif %}">
+    ⭐ Convertidos ({{ stats.convertidos }})
+  </a>
+  <a href="{{ url_for('prospectos', estado='descartado') }}" class="filter-btn {% if estado_filtro == 'descartado' %}active{% endif %}">
+    Descartados ({{ stats.descartados }})
+  </a>
+</div>
+
+<div class="card">
+  {% if prospectos %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Empresa / Rubro</th>
+          <th>Estado</th>
+          <th>Etapa</th>
+          <th>Próximo envío</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in prospectos %}
+        {% set badge_class, badge_label = ESTADO_BADGE.get(p.estado, ('badge-secondary', p.estado)) %}
+        <tr>
+          <td>
+            <a href="{{ url_for('detalle_prospecto', id_=p.id) }}" style="font-weight:600;color:var(--text);text-decoration:none;">
+              {{ p.nombre }}
+            </a>
+            {% if p.notas %}
+              <div style="font-size:.75rem;color:var(--text-muted);">{{ p.notas[:50] }}{% if p.notas|length > 50 %}…{% endif %}</div>
+            {% endif %}
+          </td>
+          <td style="font-family:monospace;font-size:.85rem;">{{ p.telefono }}</td>
+          <td>
+            {% if p.empresa %}<div style="font-weight:500;">{{ p.empresa }}</div>{% endif %}
+            {% if p.rubro %}<div style="font-size:.8rem;color:var(--text-muted);">{{ p.rubro }}</div>{% endif %}
+          </td>
+          <td><span class="badge {{ badge_class }}">{{ badge_label }}</span></td>
+          <td style="text-align:center;">
+            <span style="font-size:.85rem;font-weight:600;">{{ p.etapa_actual }}/4</span>
+            <div style="font-size:.75rem;color:var(--text-muted);">{{ p.total_mensajes_enviados }} enviados</div>
+          </td>
+          <td style="font-size:.82rem;color:var(--text-muted);">{{ p.proximo_mensaje_fmt }}</td>
+          <td>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+              <a href="{{ url_for('detalle_prospecto', id_=p.id) }}" class="btn btn-secondary btn-sm">Ver</a>
+
+              {% if p.estado == 'respondio' %}
+              <form method="post" action="{{ url_for('cambiar_estado', id_=p.id) }}">
+                <input type="hidden" name="estado" value="convertido">
+                <button class="btn btn-primary btn-sm">✅ Convertido</button>
+              </form>
+              {% endif %}
+
+              {% if p.estado not in ('descartado', 'convertido') %}
+              <form method="post" action="{{ url_for('cambiar_estado', id_=p.id) }}"
+                    onsubmit="return confirm('¿Descartar a {{ p.nombre }}?')">
+                <input type="hidden" name="estado" value="descartado">
+                <button class="btn btn-secondary btn-sm">✕ Descartar</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body" style="text-align:center;padding:3rem;color:var(--text-muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">👥</div>
+    <p style="font-size:1rem;margin-bottom:1rem;">No hay prospectos en este estado.</p>
+    <a href="{{ url_for('nuevo_prospecto') }}" class="btn btn-primary">➕ Agregar primero</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

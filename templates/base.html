@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Asistente WhatsApp{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="wa-icon">💬</span>
+    <span>WhatsApp Sales</span>
+  </div>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+      📊 Dashboard
+    </a>
+    <a href="{{ url_for('prospectos') }}" class="{% if request.endpoint in ('prospectos','detalle_prospecto','nuevo_prospecto') %}active{% endif %}">
+      👥 Prospectos
+    </a>
+    <a href="{{ url_for('importar') }}" class="{% if request.endpoint == 'importar' %}active{% endif %}">
+      📥 Importar CSV
+    </a>
+    <a href="{{ url_for('preview_mensajes') }}" class="{% if request.endpoint == 'preview_mensajes' %}active{% endif %}">
+      ✉️ Mensajes
+    </a>
+    <a href="{{ url_for('configuracion') }}" class="{% if request.endpoint == 'configuracion' %}active{% endif %}">
+      ⚙️ Configuración
+    </a>
+  </div>
+</nav>
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "empresa": {
+    "nombre": "Abastella",
+    "producto": "Control de Materia prima autoamtizado",
+    "descripcion": "Software que automatiza la gestión de tu negocio",
+    "beneficios": [
+      "Reducción del 60% en tiempo administrativo",
+      "Control total de ventas, stock e inventario",
+      "Reportes en tiempo real"
+    ],
+    "sitioWeb": "https://abastella.com/",
+    "telefono": "+58952117290",
+    "nombreVendedor": "Moira"
+  },
+  "secuencia": {
+    "horasAntesSeguimiento1": 1,
+    "horasAntesSeguimiento2": 72,
+    "horasAntesSeguimiento3": 120
+  },
+  "horarioEnvio": {
+    "horaInicio": 9,
+    "horaFin": 22,
+    "diasHabiles": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+}

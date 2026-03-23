@@ -1,0 +1,32 @@
+# Sesión de WhatsApp (no transferible entre PCs)
+data/session/
+
+# Base de datos con prospectos (datos personales)
+data/prospectos.db
+data/prospectos.db-wal
+data/prospectos.db-shm
+
+# Imágenes temporales
+data/qr.png
+data/debug_chat.png
+data/error_envio.png
+data/screenshot*.png
+
+# Logs y estado en tiempo real
+data/log_bot.json
+data/estado_bot.json
+data/bot_output.log
+
+# Flags de control
+data/forzar_envio.flag
+data/forzar_lectura.flag
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# VS Code / IDEs
+.vscode/
+.idea/

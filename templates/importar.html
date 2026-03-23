@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Importar CSV — WhatsApp Sales{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">📥 Importar prospectos desde CSV</h1>
+  <a href="{{ url_for('prospectos') }}" class="btn btn-secondary">← Volver</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Subir archivo</span></div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" id="upload-form">
+        <label class="upload-area" for="archivo" id="upload-area">
+          <div class="upload-icon">📂</div>
+          <div style="font-weight:600;margin-bottom:.4rem;" id="upload-label">Hacé clic o arrastrá tu archivo CSV acá</div>
+          <div style="font-size:.82rem;color:var(--text-muted);">Solo archivos .csv</div>
+          <input type="file" id="archivo" name="archivo" accept=".csv" required>
+        </label>
+        <div class="form-actions" style="margin-top:1.25rem;">
+          <button type="submit" class="btn btn-primary">📤 Importar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Formato del CSV</span></div>
+    <div class="card-body">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1rem;">
+        El archivo debe tener estas columnas (la primera fila es el encabezado):
+      </p>
+      <table style="font-size:.82rem;">
+        <thead>
+          <tr>
+            <th>Columna</th>
+            <th>Obligatorio</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>nombre</code></td><td>No</td><td>Nombre del contacto</td></tr>
+          <tr><td><code>telefono</code></td><td><strong>Sí</strong></td><td>Con código de país: +5491...</td></tr>
+          <tr><td><code>empresa</code></td><td>No</td><td>Nombre de la empresa</td></tr>
+          <tr><td><code>rubro</code></td><td>No</td><td>Industria o sector</td></tr>
+          <tr><td><code>notas</code></td><td>No</td><td>Notas adicionales</td></tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:1.25rem;">
+        <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:.5rem;">EJEMPLO:</div>
+        <pre style="background:#f3f4f6;padding:.75rem;border-radius:8px;font-size:.78rem;overflow-x:auto;">nombre,telefono,empresa,rubro
+Juan García,+5491123456789,Restaurante El Sol,gastronomía
+María López,+5491187654321,Farmacia Central,salud
+Carlos Ruiz,+5491198765432,Gym FitLife,fitness</pre>
+      </div>
+
+      <div style="margin-top:1rem;font-size:.82rem;color:var(--text-muted);">
+        💡 Si ya tenés el archivo Excel de leads, abrilo y guardalo como CSV (UTF-8).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const input = document.getElementById('archivo');
+const label = document.getElementById('upload-label');
+const area  = document.getElementById('upload-area');
+
+input.addEventListener('change', () => {
+  if (input.files[0]) {
+    label.textContent = '✅ ' + input.files[0].name;
+    area.style.borderColor = 'var(--wa-green)';
+    area.style.background  = '#f0fdf4';
+  }
+});
+</script>
+{% endblock %}
