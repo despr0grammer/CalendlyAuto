@@ -2,6 +2,8 @@ import { prisma } from './prisma'
 import type { Config } from '@/types'
 
 const DEFAULT_CONFIG: Config = {
+  calendlyUrl: 'https://calendly.com/diego-venegas-abastella/30min',
+  calendlyEventTypeUri: '',
   empresa: {
     nombre: 'Mi Empresa',
     producto: 'Nuestro Software',
@@ -30,7 +32,23 @@ export async function getConfig(): Promise<Config> {
   try {
     const row = await prisma.configuracion.findUnique({ where: { id: 1 } })
     if (!row) return DEFAULT_CONFIG
-    return JSON.parse(row.datos) as Config
+    const parsed = JSON.parse(row.datos) as Partial<Config>
+    return {
+      ...DEFAULT_CONFIG,
+      ...parsed,
+      empresa: {
+        ...DEFAULT_CONFIG.empresa,
+        ...(parsed.empresa || {}),
+      },
+      secuencia: {
+        ...DEFAULT_CONFIG.secuencia,
+        ...(parsed.secuencia || {}),
+      },
+      horarioEnvio: {
+        ...DEFAULT_CONFIG.horarioEnvio,
+        ...(parsed.horarioEnvio || {}),
+      },
+    }
   } catch {
     return DEFAULT_CONFIG
   }

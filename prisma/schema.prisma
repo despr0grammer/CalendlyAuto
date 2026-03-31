@@ -20,6 +20,9 @@ model Prospecto {
   fechaUltimoMensaje    DateTime?
   fechaRespuesta        DateTime?
   proximoMensaje        DateTime?
+  pendingScheduleStart  DateTime?
+  pendingScheduleLabel  String?
+  pendingScheduleEvent  String?
   totalMensajesEnviados Int          @default(0)
   mensajesLog           MensajeLog[]
 

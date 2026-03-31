@@ -11,8 +11,12 @@ data/bot.db-wal
 data/session/
 
 # Env
+.env
 .env.local
 .env.*.local
+
+# SQLite y sesión WhatsApp (rutas bajo prisma/ según DATABASE_URL)
+prisma/data/
 
 # Logs
 *.log

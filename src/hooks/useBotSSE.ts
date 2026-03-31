@@ -10,6 +10,11 @@ interface SSEState {
   alertas: unknown[]
 }
 
+interface AlertaLite {
+  id?: number
+  fechaRespuesta?: string | null
+}
+
 const DEFAULT_ESTADO: BotEstado = {
   estado: 'detenido',
   corriendo: false,
@@ -77,14 +82,21 @@ export function useBotSSE() {
 
       es.addEventListener('alertas', (e) => {
         const data = JSON.parse(e.data)
-        setState((s) => ({ ...s, alertas: data }))
+        setState((s) => {
+          const unique = new Map<string, unknown>()
+          for (const item of data as Array<{ id?: number; fechaRespuesta?: string | null }>) {
+            const key = `${item.id ?? 'x'}-${item.fechaRespuesta ?? 'sin-fecha'}`
+            if (!unique.has(key)) unique.set(key, item)
+          }
+          return { ...s, alertas: Array.from(unique.values()) }
+        })
       })
 
       es.addEventListener('alerta', (e) => {
         const data = JSON.parse(e.data)
         setState((s) => ({
           ...s,
-          alertas: [data, ...s.alertas.slice(0, 19)],
+          alertas: [data, ...(s.alertas as AlertaLite[]).filter((a) => a?.id !== data?.id).slice(0, 19)],
         }))
       })
 

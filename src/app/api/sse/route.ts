@@ -1,9 +1,13 @@
 import { whatsappService } from '@/lib/whatsapp'
 import { logger } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
+import { initBotScheduler } from '@/lib/bot-scheduler'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
+// Inicializa el scheduler en runtime servidor de Next, evitando hacerlo en next.config.
+initBotScheduler()
 
 async function getStats() {
   const rows = await prisma.prospecto.groupBy({

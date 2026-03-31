@@ -31,6 +31,8 @@ export interface MensajeLog {
 }
 
 export interface Config {
+  calendlyUrl: string
+  calendlyEventTypeUri?: string
   empresa: {
     nombre: string
     producto: string

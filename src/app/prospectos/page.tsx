@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { Prospecto } from '@/types'
+import { useSearchParams } from 'next/navigation'
 
 const ESTADOS = ['todos', 'pendiente', 'en_secuencia', 'respondio', 'convertido', 'descartado']
 
@@ -15,9 +16,17 @@ const ESTADO_COLORS: Record<string, string> = {
 }
 
 export default function ProspectosPage() {
+  const searchParams = useSearchParams()
   const [prospectos, setProspectos] = useState<Prospecto[]>([])
-  const [filtro, setFiltro] = useState('todos')
+  const [filtro, setFiltro] = useState(searchParams.get('estado') || 'todos')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const estadoParam = searchParams.get('estado')
+    if (estadoParam && ESTADOS.includes(estadoParam)) {
+      setFiltro(estadoParam)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const url = filtro === 'todos' ? '/api/prospectos' : `/api/prospectos?estado=${filtro}`

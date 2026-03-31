@@ -4,8 +4,10 @@ import { useBotSSE } from '@/hooks/useBotSSE'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
 import { BotStatusCard } from '@/components/dashboard/BotStatusCard'
 import { LogBox } from '@/components/dashboard/LogBox'
+import { useRouter } from 'next/navigation'
 
 export function Dashboard() {
+  const router = useRouter()
   const { botEstado, stats, logs, alertas, forzarEnvio, verificarRespuestas } = useBotSSE()
 
   const handleProbar = async (telefono: string) => {
@@ -25,7 +27,10 @@ export function Dashboard() {
         <p className="text-gray-500 text-sm mt-1">Asistente de prospección WhatsApp</p>
       </div>
 
-      <StatsGrid stats={stats} />
+      <StatsGrid
+        stats={stats}
+        onRespondieronClick={() => router.push('/prospectos?estado=respondio')}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <BotStatusCard
@@ -44,9 +49,9 @@ export function Dashboard() {
             <p className="text-gray-400 text-sm">Ningún prospecto ha respondido aún.</p>
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {(alertas as Array<{ id: number; nombre: string; telefono: string; fechaRespuesta: string | null }>).map((a) => (
+              {(alertas as Array<{ id: number; nombre: string; telefono: string; fechaRespuesta: string | null }>).map((a, idx) => (
                 <a
-                  key={a.id}
+                  key={`${a.id}-${a.fechaRespuesta ?? 'na'}-${idx}`}
                   href={`/prospectos/${a.id}`}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-green-50 transition"
                 >

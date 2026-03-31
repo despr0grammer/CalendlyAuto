@@ -13,17 +13,4 @@ const nextConfig = {
   },
 };
 
-// Iniciar el bot scheduler en el servidor (no en build time)
-if (typeof window === 'undefined' && process.env.NODE_ENV !== 'test') {
-  // Delay para asegurar que Prisma esté listo
-  setTimeout(async () => {
-    try {
-      const { initBotScheduler } = await import('./src/lib/bot-scheduler.js');
-      initBotScheduler();
-    } catch (e) {
-      console.error('Error iniciando bot scheduler:', e);
-    }
-  }, 2000);
-}
-
 export default nextConfig;

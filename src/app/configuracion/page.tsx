@@ -53,6 +53,34 @@ export default function ConfiguracionPage() {
       )}
 
       <div className="space-y-6">
+        {/* Calendly */}
+        <section className="bg-white rounded-2xl shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">📅 Link de reunión (Calendly)</h2>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              URL de agenda
+            </label>
+            <input
+              value={config.calendlyUrl || ''}
+              onChange={(e) => set('calendlyUrl', e.target.value)}
+              placeholder="https://calendly.com/tu-usuario/tu-evento"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+            <label className="block text-sm font-medium text-gray-600 mt-3 mb-1">
+              Event Type URI (opcional, mejora precisión de disponibilidad API)
+            </label>
+            <input
+              value={config.calendlyEventTypeUri || ''}
+              onChange={(e) => set('calendlyEventTypeUri', e.target.value)}
+              placeholder="https://api.calendly.com/event_types/XXXXXXXX"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              Este enlace se usará al enviar solicitud de reunión por WhatsApp.
+            </p>
+          </div>
+        </section>
+
         {/* Empresa */}
         <section className="bg-white rounded-2xl shadow p-6">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">🏢 Datos de la empresa</h2>

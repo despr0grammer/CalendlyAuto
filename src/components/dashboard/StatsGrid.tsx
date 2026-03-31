@@ -4,6 +4,7 @@ import type { Stats } from '@/types'
 
 interface Props {
   stats: Stats
+  onRespondieronClick?: () => void
 }
 
 const ITEMS = [
@@ -15,16 +16,30 @@ const ITEMS = [
   { key: 'descartados', label: 'Descartados', color: 'bg-red-50 text-red-700', emoji: '🗑️' },
 ] as const
 
-export function StatsGrid({ stats }: Props) {
+export function StatsGrid({ stats, onRespondieronClick }: Props) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
       {ITEMS.map(({ key, label, color, emoji }) => (
-        <div key={key} className={`rounded-xl p-4 ${color}`}>
-          <div className="text-2xl font-bold">{stats[key]}</div>
-          <div className="text-xs font-medium mt-1">
-            {emoji} {label}
+        key === 'respondieron' ? (
+          <button
+            key={key}
+            onClick={onRespondieronClick}
+            className={`rounded-xl p-4 text-left transition hover:shadow hover:scale-[1.01] ${color}`}
+            type="button"
+          >
+            <div className="text-2xl font-bold">{stats[key]}</div>
+            <div className="text-xs font-medium mt-1">
+              {emoji} {label} (abrir)
+            </div>
+          </button>
+        ) : (
+          <div key={key} className={`rounded-xl p-4 ${color}`}>
+            <div className="text-2xl font-bold">{stats[key]}</div>
+            <div className="text-xs font-medium mt-1">
+              {emoji} {label}
+            </div>
           </div>
-        </div>
+        )
       ))}
     </div>
   )
