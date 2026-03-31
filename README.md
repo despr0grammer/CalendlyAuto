@@ -82,7 +82,7 @@ La app usa la API REST de Calendly cuando `CALENDLY_ACCESS_TOKEN` está definido
 3. Entra en **API & Webhooks**: [calendly.com/integrations/api_webhooks](https://calendly.com/integrations/api_webhooks).
 4. En **Personal Access Tokens**, elige **Get a token now** o **Generate new token**, pon un nombre al token y pulsa **Create token**, luego **Copy token**.
 5. Guía oficial paso a paso: [How to authenticate with personal access tokens](https://developer.calendly.com/how-to-authenticate-with-personal-access-tokens) · Resumen de la API: [Calendly API overview](https://help.calendly.com/hc/en-us/articles/26595353029271-Calendly-API-overview) · Portal dev: [Getting started](https://developer.calendly.com/getting-started).
-4. Copia el token **una sola vez** y pégalo en tu `.env`:
+6. Copia el token **una sola vez** y pégalo en tu `.env`:
 
    ```env
    CALENDLY_ACCESS_TOKEN="tu_token_aquí"
