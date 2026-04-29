@@ -1,4 +1,4 @@
-# Abastella WhatsApp
+# CalendlyAuto
 
 Panel Next.js para gestionar prospectos y secuencias de mensajes por **WhatsApp** (Baileys), con integración opcional de **Calendly** para consultar disponibilidad y enviar resúmenes por chat.
 
@@ -14,8 +14,8 @@ Repositorio: [github.com/despr0grammer/Abastellawhatsapp](https://github.com/des
 1. **Clonar el repositorio**
 
    ```bash
-   git clone https://github.com/despr0grammer/Abastellawhatsapp.git
-   cd Abastellawhatsapp
+   git clone https://github.com/despr0grammer/Calendlyauto.git
+   cd Calendlyauto
    ```
 
 2. **Instalar dependencias**
