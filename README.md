@@ -2,7 +2,7 @@
 
 Panel Next.js para gestionar prospectos y secuencias de mensajes por **WhatsApp** (Baileys), con integración opcional de **Calendly** para consultar disponibilidad y enviar resúmenes por chat.
 
-Repositorio: [github.com/despr0grammer/Abastellawhatsapp](https://github.com/despr0grammer/Abastellawhatsapp)
+Repositorio: [github.com/despr0grammer/Abastellawhatsapp](https://github.com/despr0grammer/Calendlyauto)
 
 ## Requisitos
 
